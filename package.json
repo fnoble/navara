@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@deck.gl/carto": "^8.9.33",
     "@fontsource/roboto": "^5.0.8",
     "@mui/icons-material": "^5.15.1",
     "@mui/material": "^5.15.1",
