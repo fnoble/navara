@@ -1,12 +1,19 @@
 import './App.css'
 
-import DeckGL, {TileLayer, BitmapLayer} from 'deck.gl/typed';
+import { useEffect } from 'react';
+import DeckGL, {TileLayer, BitmapLayer, IconLayer} from 'deck.gl/typed';
 import {StaticMap, MapContext} from 'react-map-gl';
 import {BASEMAP} from '@deck.gl/carto';
 
 import { ZoomControls } from '../features/zoomControl/ZoomControl';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectDeckGlViewState, setDeckGlViewState, zoomIn, zoomOut } from './viewSlice';
+import { startConnecting } from './signalkSlice';
+import { selectDeckGlIconData } from '../features/vessels/vesselsSlice';
+
+const ICON_MAPPING = {
+  marker: {x: 0, y: 0, width: 128, height: 128, mask: true}
+};
 
 function App() {
   const dispatch = useDispatch();
@@ -30,7 +37,22 @@ function App() {
           bounds: [west, south, east, north]
         });
       }
-    })
+    }),
+    new IconLayer({
+      id: 'vessels-layer',
+      data: useSelector(selectDeckGlIconData),
+      pickable: true,
+      // iconAtlas and iconMapping are required
+      // getIcon: return a string
+      iconAtlas: 'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
+      iconMapping: ICON_MAPPING,
+      getIcon: d => 'marker',
+  
+      sizeScale: 15,
+      getPosition: d => d.coordinates,
+      getSize: d => 5,
+      getColor: d => [0, 140, 0]
+    }),
   ];
 
   const onZoomIn = () => {
@@ -39,6 +61,12 @@ function App() {
   const onZoomOut = () => {
     dispatch(zoomOut());
   };
+
+  useEffect(() => {
+    // Establish SignalK connection
+    dispatch(startConnecting());
+    console.log("I have been mounted");
+  }, [])
 
   const deckGlViewState = useSelector(selectDeckGlViewState);
 
