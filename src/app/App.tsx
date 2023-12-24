@@ -1,13 +1,13 @@
 import './App.css'
 
 import { useEffect } from 'react';
-import DeckGL, {TileLayer, BitmapLayer, IconLayer} from 'deck.gl/typed';
+import DeckGL, {TileLayer, BitmapLayer, IconLayer, MapViewState} from 'deck.gl/typed';
 import {StaticMap, MapContext} from 'react-map-gl';
 import {BASEMAP} from '@deck.gl/carto';
 
 import { ZoomControls } from '../features/zoomControl/ZoomControl';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectDeckGlViewState, setDeckGlViewState, zoomIn, zoomOut } from './viewSlice';
+import { deckGLToViewState, selectDeckGlViewState, setViewState, zoomIn, zoomOut } from './viewSlice';
 import { startConnecting } from './signalkSlice';
 import { selectDeckGlIconData } from '../features/vessels/vesselsSlice';
 
@@ -74,7 +74,7 @@ function App() {
     <div>
       <DeckGL
         viewState={{...deckGlViewState}}
-        onViewStateChange={e => dispatch(setDeckGlViewState(e.viewState))}
+        onViewStateChange={e => dispatch(setViewState(deckGLToViewState(e.viewState as MapViewState)))}
         controller={true}
         layers={layers}
         ContextProvider={MapContext.Provider}

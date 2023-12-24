@@ -1,18 +1,18 @@
 import {MapViewState} from '@deck.gl/core/typed';
 
-import { createSlice } from "@reduxjs/toolkit";
+import { createSelector, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 
-export interface ViewState {
-  padding?: number,
+export type ViewState = {
   latitude: number,
   longitude: number,
   zoom: number,
-  bearing: number,
-  pitch: number
+  transitionDuration?: number | "auto",
+  bearing?: number,
+  pitch?: number
 }
 
-const initialState: MapViewState = {
+const initialState: ViewState = {
   latitude: 37.77,
   longitude: -122.42,
   zoom: 9,
@@ -32,16 +32,35 @@ export const viewSlice = createSlice({
       state.zoom -= 1
       state.transitionDuration = 100;
     },
-    setDeckGlViewState: (_state, action) => {
+    setViewState: (_state, action) => {
       return action.payload;
     },
   },
 })
 
-export const { zoomIn, zoomOut, setDeckGlViewState } = viewSlice.actions
-
-export const selectDeckGlViewState = (state: RootState) => {
-  return state.view;
+export const viewStateToDeckGL = (viewState: ViewState): MapViewState => {
+  return {
+    ...viewState
+  };
 }
+
+export const deckGLToViewState = (mapViewState: MapViewState): ViewState => {
+  return {
+    latitude: mapViewState.latitude,
+    longitude: mapViewState.longitude,
+    zoom: mapViewState.zoom,
+    transitionDuration: mapViewState.transitionDuration,
+    bearing: mapViewState.bearing,
+    pitch: mapViewState.pitch
+  };
+}
+
+export const { zoomIn, zoomOut, setViewState } = viewSlice.actions
+
+export const selectViewState = (state: RootState): ViewState => state.view;
+
+export const selectDeckGlViewState = createSelector([selectViewState], (viewState: ViewState) => {
+  return viewStateToDeckGL(viewState);
+})
 
 export default viewSlice.reducer
